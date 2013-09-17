@@ -1,0 +1,52 @@
++Visitor
+	-Invite not registered people to be visitor.
+	-Admin Projects have an Icon top right.
+	-Index Webpage show visitor project.
+	-Invite people to be visitor.
+	-In project details, list of visitors.
+	-Link Project to its Visitor User(model).
+	-Autocompletition when inviting.
+
++Misc
+	-Add notifications of what just happened and Undo option.
+	-Closed projects. (To apear as well, desplegable)
+	-Options of configuration for the users.
+	-Recovery password system.
+	-Cost Icon: Tooltip with progress bar and checkbox.
+	-Boton ayuda.
+	-Busca un buen fondo.
+
+	
+-Show cost inine detail									[DONE]
+-Show % inline detail									[DONE]
+-Show cost inine option									[DONE]
+-Show % inline option									[DONE]
+-Computed Completion depends on the cost.				[DONE]
+-Default value for create form.							[DONE]	
+-Login backgrond.										[DONE]
+-Invite not registered people to be admin.				[DONE]
+-Invite people to be admin.								[DONE]
+-In project page, list of admins.						[DONE]
+-Add cost in the forms and an Icon.						[DONE]
+-Add cost to the model.									[DONE]
+-Add a cost Icon with the cost when mouse over.			[DONE]
+-comment classes										[DONE]
+-Add calculated cost.									[DONE]
+-Add cost to the task + display it.(final tasks)		[DONE]
+-Move task down/up										[DONE]
+-Save state of a task. Open/Close						[DONE]
+-Remove a task.											[DONE]
+-Edit a task.											[DONE]
+-View a task.											[DONE]
+-Set and display task order.							[DONE]
+-In project page, show tasks.							[DONE]
+-Create Basic Project panels.							[DONE]
+-Tasks within projects model(Basic, just task name).	[DONE]
+-Index Webpage context specific to User.				[DONE]
+-Link Project to its Admin User.						[DONE]
+-Create user Page.										[DONE]
+-Login Page.											[DONE]
+-Set up Authetication.									[DONE]
+-Create a Project.										[DONE]
+-Deploy List of Projects.								[DONE]
+-Deply Basic App.										[DONE]

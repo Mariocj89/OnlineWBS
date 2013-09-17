@@ -1,0 +1,45 @@
+{% extends "WBS/base.html" %}
+
+{% block extraJS %}
+<style>
+input[type=text]{
+    display: block;
+    position: relative;
+    width: 200px;
+}
+label {
+    /*display: block;*/
+    margin-right: .5em;
+    padding-top: 0em;
+}
+</style>
+<script>
+$( document ).ready(function() {
+		
+	$( "#account-form" ).dialog({dialogClass: "no-close",
+							draggable: false,
+							resizable: false,
+							width: 250});
+	$( "#inputBut" ).button();
+	
+	$( "#id_username").val('{{ request.user.username }}');
+	$( "#id_email").val('{{ request.user.email }}');
+	$('input[name=showInlineCost]').attr('checked', '{{ request.user.preferences.showInlineCost }}' == 'True');
+	$('input[name=showInlineCompletion]').attr('checked', '{{ request.user.preferences.showInlineCompletion }}'== 'True');
+	
+});
+</script>
+{% endblock %}
+
+{% block bodyTitle %}Profile Details{% endblock %}
+
+{% block content %}
+{%  include "WBS/loginBox.html" %}
+
+<form action="/accounts/profile/" id="account-form" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" id="inputBut" value="Submit" />
+</form>
+
+<!-- Hiden Stuff! -->
+{% endblock %}

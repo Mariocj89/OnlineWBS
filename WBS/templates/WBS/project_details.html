@@ -1,0 +1,438 @@
+{% extends "WBS/base.html" %}
+
+{% block extraJS %}
+<style>
+textarea{ resize:none } 
+.div-tasks li{
+	padding: 5px;
+	padding-left: 15px;
+	list-style:none;
+}
+.task-label{
+	clear:left;
+	display:block;
+}
+
+.completed-task{
+	color:  rgb(1,200,102);
+}
+
+.user-list{
+	border-style:solid;
+	border-width:2px;
+	padding-left: 25px;
+}
+.user-list ul, .user-list li{
+	padding-left: 0px;
+}
+
+.div-tasks li img{
+	margin-left: 2px;
+}
+
+.admin-item{
+	list-style-image:url('/static/WBS/img/admin.png');
+}
+.visitor-item{
+	list-style-image:url('/static/WBS/img/visitor.png');
+}
+#new-admin{
+	position:relative;
+	left:-15px;
+	width: 145px;
+}
+</style>
+<script>
+$(function(){
+	/**		Flag to control the end of the initialization of the web page **/ 
+	var initializationIsFinished = false;
+	
+	/**		Click on list items		**/
+    $('.div-tasks li')
+        .css('pointer','default')
+        .css('list-style-image','none');
+    $('.div-tasks li:has(ul)')
+        .on('click',function(event){
+            //$(this).html() == $(event.target).closest('li').html() && !$(this).hasClass('list-icon')) {
+            if( this == event.target || this == event.target.parentNode) {
+                $(this).css('list-style-image',
+                    (!$(this).children().is(':hidden')) ? 'url(/static/WBS/img/plusbox.gif)' : 'url(/static/WBS/img/minusbox.gif)');
+                $(this).children('ul').stop().toggle(initializationIsFinished?'slow':0);
+                if(initializationIsFinished)
+					$.ajax({
+						type: "POST",
+							url: '/project/'+pid+'/toggle-task/'+$(event.target).closest('li').attr('alt')+'/',
+							data: {},
+							success: function(data){},
+							error: function(data){}
+						});                
+            }
+        })
+        .css({cursor:'pointer', 'list-style-image':'url(/static/WBS/img/minusbox.gif)'})
+        .children();
+    $('.div-tasks li:not(:has(ul))').css({cursor:'default', 'list-style-image':'none'});
+    
+    var pid = {{project.pk}};
+	var name = $( "#name" );
+	var description = $( "#description" );
+	var cost = $( "#cost" );
+	var completion = $( "#completion" );
+	
+	//var labelName = $('label[for=name]');
+	//var labelDescription = $('label[for=description]');
+	var divDialog = $('#dialog-form');
+	
+	var allFields = $( [] ).add( name ).add( description ).add( cost ).add( completion );
+	var parentTaskId = 0;
+	
+	/**			Validate Task Form		**/
+	function validateDialog(){	
+		var bValid = true;
+		allFields.removeClass( "ui-state-error" );
+		bValid = bValid && name.val().length > 0;
+		bValid = bValid && description.val().length > 0;
+		bValid = bValid && cost.val().length > 0 && $.isNumeric(cost.val());
+		bValid = bValid && completion.val().length > 0 
+						&& $.isNumeric(completion.val()) && completion.val() <= 100 && completion.val() >= 0;
+		if(description.val().length <= 0){
+			description.addClass( "ui-state-error" );
+		}
+		if(name.val().length <= 0){
+			name.addClass( "ui-state-error" );
+		}
+		if(cost.val().length <= 0 || !$.isNumeric(cost.val())){
+			cost.addClass( "ui-state-error" );
+		}
+		if(!(completion.val().length > 0 && $.isNumeric(completion.val()) && completion.val() <= 100 && completion.val() >= 0)){
+			completion.addClass( "ui-state-error" );
+		}			
+					
+		return bValid;
+	}	
+	
+	/**			Task Dialog			**/
+   
+	$( "#dialog-form" ).dialog({
+		autoOpen: false,
+		height: 510,
+		width: 500,
+		modal: true,
+		buttons: {
+			"Create": function() {				
+				if ( validateDialog() ) {	
+					$.ajax({
+					type: "POST",
+						url: '/project/'+parentTaskId+'/new-task/',
+						data: {
+							'title':name.val(),
+							'description':description.val(),
+							'cost':cost.val(),
+							'completion':completion.val()
+							},
+						success: function(data){location.reload();},
+						error: function(data){alert("Failed to Create the project");}
+					});
+					$( this ).dialog( "close" );
+				}
+			},
+			"Update": function() {
+				if ( validateDialog() ) {	
+					$.ajax({
+					type: "POST",
+						url: '/project/'+pid+'/update-task/'+taskId+'/',
+						data: {
+							'title':name.val(),
+							'description':description.val(),
+							'cost':cost.val(),
+							'completion':completion.val()
+							},
+						success: function(data){location.reload();},
+						error: function(data){alert("Failed to Create the project");}
+					});
+					$( this ).dialog( "close" );
+				}
+			},			
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+			},
+			close: function() {
+				allFields.val( "" ).removeClass( "ui-state-error" );
+
+				description.val(' ');
+				cost.val('1');
+				completion.val('0');
+			}
+		});    
+		
+	/**			Confirmation Dialog		**/
+	
+	$( "#dialog-confirm" ).dialog({
+		autoOpen: false,
+		resizable: false,
+		height:240,
+		modal: true,
+		buttons: {
+			Confirm: function() {
+				$.ajax({
+					type: "POST",
+					url: '/project/'+pid+'/delete-task/'+ taskId +'/',
+					data: {},
+					success: function(data){alert("Task deleted from the system.");location.reload();},
+					error: function(data){alert("Failed to Retrieve the task");}
+				});				
+				$( this ).dialog( "close" );
+			},
+			Cancel: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+
+    
+    
+    /**			Aux Functions for the dialog		**/
+	function PrepareForCreate(){
+		divDialog.dialog('option', 'title', 'Create new task');
+		$('.dialog-form input[type=text], textarea').prop("disabled", false);//.removeClass("ui-state-disabled");
+		$(":button:contains('Create')").show();
+		$(":button:contains('Update')").hide();
+	}
+	
+	function PrepareForView(){
+		divDialog.dialog('option', 'title', 'Task Details');
+		$('.dialog-forminput[type=text], textarea').prop("disabled", true);//.addClass("ui-state-disabled");
+		$(":button:contains('Create')").hide();
+		$(":button:contains('Update')").hide();
+		//$('#new-admin').prop("disabled", false);
+	}	   
+    
+	function PrepareForEdit(){
+		divDialog.dialog('option', 'title', 'Edit task');
+		$('.dialog-forminput[type=text], textarea').prop("disabled", false);//.removeClass("ui-state-disabled");
+		$(":button:contains('Create')").hide();
+		$(":button:contains('Update')").show();
+	}    
+    
+    /**			Tasks buttons		**/
+    //Create task
+    $('ul li').on('click','.new-task',function(event){
+    	PrepareForCreate();
+    	$( "#dialog-form" ).dialog( "open" );
+    	parentTaskId = $(this).attr("alt");
+    });
+    
+    //View task details
+    $('ul li').on('click','.view-task',function(event){
+    	taskId = $(this).attr("alt");
+    	PrepareForView();
+    	$.ajax({
+			type: "POST",
+				url: '/project/'+pid+'/view-task/'+ taskId +'/',
+				data: {},
+				success: function(data){
+					name.val(data.title);
+					description.val(data.description);
+					cost.val(data.cost);
+					completion.val(data.completion);
+				},
+				error: function(data){alert("Failed to Retrieve the task");}
+		});
+    	$( "#dialog-form" ).dialog( "open" );
+    	return false;
+    });    
+    
+    //Edit task details
+    $('ul li').on('click','.edit-task',function(event){
+    	taskId = $(this).attr("alt");
+    	PrepareForEdit();
+    	$.ajax({
+			type: "POST",
+				url: '/project/'+pid+'/view-task/'+ taskId +'/',
+				data: {},
+				success: function(data){
+					name.val(data.title);
+					description.val(data.description);
+					cost.val(data.cost);
+					completion.val(data.completion);
+					if(data.isLeaf == false){
+						cost.prop("disabled", true);
+						completion.prop("disabled", true);
+					}
+				},
+				error: function(data){alert("Failed to Retrieve the task");}
+		});
+    	$( "#dialog-form" ).dialog( "open" );
+    	return false;
+    });
+    
+    //Delete task
+    $('ul li').on('click','.delete-task',function(event){
+    	taskId = $(this).attr("alt");
+    	PrepareForEdit();
+    	$.ajax({
+			type: "POST",
+				url: '/project/'+pid+'/view-task/'+ taskId +'/',
+				data: {},
+				success: function(data){
+					$('#delete-item-name').html(data.title);
+				},
+				error: function(data){alert("Failed to Retrieve the task");}
+		});
+    	$( "#dialog-confirm" ).dialog( "open" );
+    	return false;
+    });
+    
+    //Move task Down
+    $('ul li').on('click','.move-task-down',function(event){
+    	taskId = $(this).attr("alt");
+    	$.ajax({
+			type: "POST",
+				url: '/project/'+pid+'/move-task/'+ taskId +'/down/',
+				data: {},
+				success: function(data){
+					location.reload();
+				},
+				error: function(data){}
+		});
+    	return false;
+    });
+    
+    //Move task Up
+    $('ul li').on('click','.move-task-up',function(event){
+    	taskId = $(this).attr("alt");
+    	$.ajax({
+			type: "POST",
+				url: '/project/'+pid+'/move-task/'+ taskId +'/up/',
+				data: {},
+				success: function(data){
+					location.reload();
+				},
+				error: function(data){}
+		});
+    	return false;
+    });
+   
+	/**Disable text select does not work */
+	$.extend($.fn.disableTextSelect = function() {
+		return this.each(function(){
+				$(this).css('MozUserSelect','none');
+				$(this).bind('selectstart',function(){return false;});
+				$(this).mousedown(function(){return false;});
+		});
+	});    
+	$('li').disableTextSelect();    
+    
+    /** Default text**/
+    $(".defaultText").val('');
+    $(".defaultText").focus(function(srcc)
+    {
+        if ($(this).val() == $(this)[0].title)
+        {
+            $(this).removeClass("defaultTextActive");
+            $(this).val("");
+        }
+    });
+    
+    $(".defaultText").blur(function()
+    {
+        if ($(this).val() == "")
+        {
+            $(this).addClass("defaultTextActive");
+            $(this).val($(this)[0].title);
+        }
+    });
+    
+    $(".defaultText").blur();     
+    
+    /** New Admin **/
+	$('#AddAdminForm input').keypress(function (e) {
+	  if (e.which == 13) {
+		$.ajax({
+			type: "POST",
+				url: '/project/{{project.pk}}/add-admin/',
+				data: {'new-admin':$('#new-admin').val()},
+				success: function(data){
+					location.reload();
+				},
+				error: function(data){alert('User does not exist');}
+		});
+		return false;
+	  }
+	});
+	
+	
+	/** Remove Admin **/	
+    $('.user-list').on('click','.remove-admin',function(event){
+    	adminId = $(this).attr("alt");
+    	$.ajax({
+			type: "POST",
+				url: '/project/{{project.pk}}/remove-admin/',
+				data: {'remove-admin':adminId},
+				success: function(data){
+					location.reload();
+				},
+				error: function(data){alert('Unespected error when removing the admin.');}
+		});
+    	return false;
+    });	
+
+	{{extra_script}}
+    
+    initializationIsFinished = true;
+    
+ });
+</script>
+{% endblock %}
+
+{% block bodyTitle %}{{project.title}}:{% endblock %}
+
+{% block content %}
+{%  include "WBS/loginBox.html" %}
+<div class="span-18 prepend-1 div-tasks">
+{{html_formatted_taks}}
+</div>
+
+<div class="span-4 prepend-1 user-list">
+	<h3>Users</h3>
+	<ul>
+		{% for admin in project.administrators.all %}
+		<li class="admin-item" title="Admin">{{admin.username}}
+		{% if admin.username != request.user.username %}
+			<a class='remove-admin' href='#' alt='{{admin.pk}}'><img title='Remove Admin' class='list-icon' src='/static/WBS/img/delete.png' /></a>
+		{% endif %}
+		
+		</li>
+		{% endfor %}
+		<!--<li class="visitor-item">Item 1</li>-->
+		<form action="" method="post" id="AddAdminForm">
+			<input type="text" name="new-admin" id="new-admin" size="5" class="defaultText invite-user text ui-widget-content ui-corner-all" title="Add an admin here"/>
+		</form>
+	</ul>
+</div>
+
+<!-- Hiden Stuff! -->
+<div id="dialog-form" title="Create new task">
+	<form>
+		<fieldset>
+			<label for="title" class="task-label">Title:</label>
+				<input type="text" name="name" id="name" size="20" class="text ui-widget-content ui-corner-all" />
+			<label for="cost" class="task-label">Cost:</label>
+				<input type="text" name="cost" id="cost" size="20" class="text ui-widget-content ui-corner-all" value="0"/>		
+			<label for="completion" class="task-label">Completion:</label>
+				<input type="text" name="completion" id="completion" size="20" class="text ui-widget-content ui-corner-all" value="0"/>								
+			<label for="description" class="task-label">Description:</label>
+				<!--<input type="text" name="password" id="password" value="" class="text ui-widget-content ui-corner-all" />-->
+				<textarea rows="1" cols="25" name="description" id="description" value="" class="text ui-widget-content ui-corner-all"> </textarea>		
+		</fieldset>
+	</form>
+</div>
+
+<div id="dialog-confirm" title="Delete task permanently?">
+	<p><span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 20px 0;"> </span>
+		Task "<span id="delete-item-name">Title</span>" will be permanently deleted with all its children and this cannot be recovered. <br />Are you sure?</p>
+</div>
+
+
+   
+{% endblock %}

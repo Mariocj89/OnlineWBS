@@ -1,0 +1,38 @@
+{% extends "WBS/base.html" %}
+
+{% block extraJS %}
+<style>
+input[type=text]{
+    display: block;
+    position: relative;
+    width: 200px;
+}
+label {
+    /*display: block;*/
+    margin-right: .5em;
+    padding-top: 0em;
+}
+</style>
+<script>
+$( document ).ready(function() {
+		
+	$( "#account-form" ).dialog({dialogClass: "no-close",
+							draggable: false,
+							resizable: false,
+							width: 250});
+	$( "#inputBut" ).button();
+	
+});
+</script>
+{% endblock %}
+
+
+{% block content %}
+
+<form action="/accounts/create/" id="account-form" method="post">{% csrf_token %}
+{{ form.as_p }}
+<input type="submit" id="inputBut" value="Create" />
+</form>
+
+<!-- Hiden Stuff! -->
+{% endblock %}

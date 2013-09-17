@@ -1,0 +1,32 @@
+<!-- Begin Login Box --> 
+<style>
+#login_bar{
+	width:300px;        
+	position:absolute;
+	z-index:10;        
+	border:1px solid black;
+	border-radius: 0px 0px 40px 40px;
+	padding-top:15px;
+	padding-right:35px;
+	top:-5px;
+	right:150px;
+	display:inline-block;
+}
+#login_bar img{
+	width:20px;
+	float:right;
+	margin-right:5px;
+
+}
+#login_bar b{
+	margin-right:35px;
+}
+</style>
+
+	<div id="login_bar" style="text-align: right">
+		<a href="/accounts/profile/"><b>{{ request.user }}</b></a>                      
+	    <a href="/accounts/logout/"><img src="/static/WBS/img/logout.png" title="Logout"/></a>
+	    <a href="/"><img src="/static/WBS/img/home.png" title="Home"/></a>
+	</div>
+	
+<!-- End Login Box -->	

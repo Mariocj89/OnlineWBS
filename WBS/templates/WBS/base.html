@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Online Work Breakdown Structure</title>
+
+    <!-- Framework CSS -->
+    <link rel="stylesheet" href="/static/WBS/css/blueprint/screen.css" type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="/static/WBS/css/blueprint/print.css" type="text/css" media="print" />
+    <!--[if lt IE 8]><link rel="stylesheet" href="WBS/css/blueprint/ie.css" type="text/css" media="screen, projection"><![endif]-->
+    <style type="text/css" media="screen">
+      p, table, hr, .box { margin-bottom:25px; }
+      .box p { margin-bottom:10px; }
+    </style>
+    
+	<!-- Jquery -->
+	<script type="text/javascript" src="/static/WBS/js/jquery-ui-1.10.3/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="/static/WBS/js/jquery-ui-1.10.3/ui/jquery-ui.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+	
+	    
+    <link rel="stylesheet" href="/static/WBS/css/style.css" type="text/css" media="screen, projection">
+ 	<link href='http://fonts.googleapis.com/css?family=Cinzel' rel='stylesheet' type='text/css'>    
+    <!-- Begin head -->
+{% block extraJS %}{% endblock %}
+</head>
+    <!-- End header -->
+<body>
+    <!-- Begin content -->
+    {% block PreBody %}{% endblock %}
+    <div class="container">
+		<br />
+		<h1>{% block bodyTitle %}{% endblock %}</h1>
+		<br />    	
+    	{% block content %}{% endblock %}
+    </div>
+    <!-- End content -->
+    <!-- Begin footer -->
+    <div id="footer">
+    	<!-- End footer -->
+	</div>
+</body>
+</html>

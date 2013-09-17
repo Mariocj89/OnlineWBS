@@ -1,0 +1,95 @@
+{% extends "WBS/base.html" %}
+
+{% block extraJS %}
+<script>
+$( document ).ready(function() {
+	var name = $( "#name" );
+	var description = $( "#description" );
+	var allFields = $( [] ).add( name ).add( description );
+
+	$( "#dialog-form" ).dialog({
+			autoOpen: false,
+			height: 510,
+			width: 500,
+			modal: true,
+			buttons: {
+				"Create": function() {
+					var bValid = true;
+					allFields.removeClass( "ui-state-error" );
+					bValid = bValid && name.val().length > 0
+					bValid = bValid && description.val().length > 0
+					if(description.val().length <= 0){
+						description.addClass( "ui-state-error" );
+					}
+					if(name.val().length <= 0){
+						name.addClass( "ui-state-error" );
+					}					
+					if ( bValid ) {	
+						$.ajax({
+						type: "POST",
+							url: '/new-project/',
+							data: {'title':name.val(),'description':description.val()},
+							success: function(data){location.reload();},
+							error: function(data){alert("Failed to Create the project");}
+						});
+						$( this ).dialog( "close" );
+					}
+				},
+				Cancel: function() {
+					$( this ).dialog( "close" );
+				}
+				},
+				close: function() {
+					allFields.val( "" ).removeClass( "ui-state-error" );
+				}
+			});
+	$( "#create-project-but" )
+		.click(function() {
+		$( "#dialog-form" ).dialog( "open" );
+	});
+
+});
+</script>
+{% endblock %}
+
+{% block bodyTitle %}Ongoing Projects{% endblock %}
+
+{% block content %}
+{%  include "WBS/loginBox.html" %}
+
+{%for pj in ongoing%}
+    <a href="/project/{{pj.pk}}/"><div class="span-5 prepend-1 append-1 projectBox">
+        <h3>{{pj.title}}</h3>
+        <p class='quiet'>{{pj.description}}</p>
+    </div></a>
+{%endfor%}	
+    <a href="#" id="create-project-but"><div class="span-5 prepend-1 append-1 projectBox new">
+        <h3>New</h3>
+        <p class='quiet'>Click here to add a new project...</p>
+    </div></a>
+    
+{% if finished %}
+	<br /><hr />
+	<h1>Finished Projects</h1>
+	<br />
+	{%for pj in finished%}
+	    <a href=""><div class="span-5 prepend-1 append-1 projectBox">
+	        <h3>{{pj.title}}</h3>
+	        <p class='quiet'>{{pj.description}}</p>
+	    </div></a>
+	{%endfor%}	
+{% endif %}
+
+<!-- Hiden Stuff! -->
+<div id="dialog-form" title="Create new project">
+	<form>
+		<fieldset>
+			<label for="title">Title</label>
+				<input type="text" name="name" id="name" size="20" class="text ui-widget-content ui-corner-all" />
+			<label for="description">Description</label>
+				<!--<input type="text" name="password" id="password" value="" class="text ui-widget-content ui-corner-all" />-->
+				<textarea rows="1" cols="30" name="description" id="description" value="" class="text ui-widget-content ui-corner-all"> </textarea>
+		</fieldset>
+	</form>
+</div>
+{% endblock %}

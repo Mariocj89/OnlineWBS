@@ -1,0 +1,59 @@
+{% extends "WBS/base.html" %}
+{% load url from future %}
+{% block extraJS %}
+<!--<script type="text/javascript" src="/static/WBS/js/jquery.backgroundpos.min.js"></script-->
+<style>
+#registerBut{
+float:right;
+}
+</style>
+<script>
+$(function() {
+	$( "#dialog" ).dialog({dialogClass: "no-close",
+							draggable: false,
+							resizable: false});
+	$( "#inputBut" ).button();
+	$( "#registerBut" ).button();
+
+	// Basic Javascript
+	//jQuery('#maximage').maximage();
+	//$("#maximage").animate({height: "20px"}, 500)
+	
+	$("body").css('background','url(/static/WBS/img/bg/bg1.png) no-repeat 200px 50px')
+			.css('background-color','white');
+	/*
+	$("body").animate({backgroundPosition: '400px 50px'},20000,'linear',function(){
+		$("body").animate({'background-image':'url(/static/WBS/img/bg/bg2.png)'},20000);
+	});*/
+			      
+
+});
+</script>
+{% endblock %}
+
+{% block bodyTitle %}Online WBS!{% endblock %}
+
+{% block content %}
+
+{% if form.errors %}
+<script>$(function(){alert('Your username and password didn\'t match. Please try again');});</script>
+{% endif %}
+
+<form title="Login" method="post" id="dialog" action="{% url 'django.contrib.auth.views.login' %}">
+{% csrf_token %}
+<table>
+<tr>
+    <td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+</tr>
+<tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+</tr>
+</table>
+
+<input type="submit" id="inputBut" value="Login" />
+<a href="/accounts/create/"><button type="button" id="registerBut">Register</button></a>
+<input type="hidden" name="next" value="{{ next }}" />
+</form>
+{% endblock %}

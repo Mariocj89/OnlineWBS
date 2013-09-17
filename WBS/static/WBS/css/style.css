@@ -1,0 +1,37 @@
+.projectBox 
+{
+  border-radius: 40px 40px 40px 40px;
+  border:1px solid black;
+  height:125px;
+  margin-bottom:10px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  background-color: #F0F8FF;
+}
+
+.projectBox:hover
+{
+background-color:#FFFFFF;
+} 
+
+.projectBox.new
+{
+  opacity: .5;
+}
+
+.no-close .ui-dialog-titlebar-close {
+display: none;
+}
+
+.list-icon{
+	
+	float:right;
+	height:15px;
+	
+}
+
+.defaultTextActive { color: #DDDDDD; font-style: italic; }
+
+h1{
+	font-family:'Cinzel',Roboto,"Playfair Display","Times New Roman",serif;		
+}
