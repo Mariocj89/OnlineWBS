@@ -54,7 +54,8 @@ class Task(models.Model):
     isCollapsedByUser = models.ManyToManyField(User,related_name='collapsedTasks')
     """Stores the users that collapsed this task in their UI"""
     
-
+    def getCompletionStr(self):
+	return "%.2f" % self.getCompletion()
     def getCompletion(self):
         """
             Given a task, if it is a leaf, returns its completion,
@@ -77,6 +78,8 @@ class Task(models.Model):
         """
         return self.getCompletion() == 100.0
 
+    def getCostStr(self):
+	return "%.2f" % self.getCost()
     def getCost(self):
         """
             Given a task, if it is a leaf, returns its cost,

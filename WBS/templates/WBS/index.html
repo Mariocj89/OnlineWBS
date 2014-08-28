@@ -1,5 +1,5 @@
 {% extends "WBS/base.html" %}
-
+{% load url from future %}
 {% block extraJS %}
 <script>
 $( document ).ready(function() {
@@ -27,7 +27,7 @@ $( document ).ready(function() {
 					if ( bValid ) {	
 						$.ajax({
 						type: "POST",
-							url: '/new-project/',
+							url: "{% url 'wbs/new-project' %}",
 							data: {'title':name.val(),'description':description.val()},
 							success: function(data){location.reload();},
 							error: function(data){alert("Failed to Create the project");}
@@ -58,7 +58,7 @@ $( document ).ready(function() {
 {%  include "WBS/loginBox.html" %}
 
 {%for pj in ongoing%}
-    <a href="/project/{{pj.pk}}/"><div class="span-5 prepend-1 append-1 projectBox">
+    <a href="{% url 'wbs/project' pj.pk %}"><div class="span-5 prepend-1 append-1 projectBox">
         <h3>{{pj.title}}</h3>
         <p class='quiet'>{{pj.description}}</p>
     </div></a>

@@ -1,5 +1,5 @@
 {% extends "WBS/base.html" %}
-
+{% load url from future %}
 {% block extraJS %}
 <style>
 input[type=text]{
@@ -36,7 +36,7 @@ $( document ).ready(function() {
 {% block content %}
 {%  include "WBS/loginBox.html" %}
 
-<form action="/accounts/profile/" id="account-form" method="post">{% csrf_token %}
+<form action="{% url 'wbs/profile' %}" id="account-form" method="post">{% csrf_token %}
 {{ form.as_p }}
 <input type="submit" id="inputBut" value="Submit" />
 </form>

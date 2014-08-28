@@ -1,10 +1,12 @@
 # Django settings for OnlineWBS project.
 import os.path
+from django.core.urlresolvers import reverse
 
 
 #Get the absolute path of the settings.py file's directory
 PROJECT_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__ )) , os.pardir))
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'WBS.views.home'
+LOGIN_URL='/accounts/login'#reverse('wbs/login')
 
 print "Current Dir is: ",PROJECT_PATH
 
@@ -32,7 +34,7 @@ DATABASES = {
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'France/Paris'
+TIME_ZONE = 'Europe/Paris'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -53,7 +55,7 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = '/data/apache/serve/onlinewbs/media/'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -64,7 +66,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = '/data/apache/serve/onlinewbs/static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -130,7 +132,21 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     #'django.contrib.admindocs',
     'WBS',
+    'django_jenkins',
 )
+JENKINS_TASKS = (
+    #'django_jenkins.tasks.run_flake8',
+    #'django_jenkins.tasks.run_jshint',
+    #'django_jenkins.tasks.run_csslint',
+    #'django_jenkins.tasks.run_pylint',
+    #'django_jenkins.tasks.with_coverage',
+    'django_jenkins.tasks.django_tests',   # select one django or
+    #'django_jenkins.tasks.run_pep8',
+    #'django_jenkins.tasks.run_pyflakes',
+    #'django_jenkins.tasks.run_sloccount',
+    #'django_jenkins.tasks.lettuce_tests',
+)
+PROJECT_APPS=('WBS',)
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

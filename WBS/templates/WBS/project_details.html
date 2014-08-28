@@ -1,5 +1,5 @@
 {% extends "WBS/base.html" %}
-
+{% load url from future %}
 {% block extraJS %}
 <style>
 textarea{ resize:none } 
@@ -61,7 +61,7 @@ $(function(){
                 if(initializationIsFinished)
 					$.ajax({
 						type: "POST",
-							url: '/project/'+pid+'/toggle-task/'+$(event.target).closest('li').attr('alt')+'/',
+							url: '{% url 'home' %}project/'+pid+'/toggle-task/'+$(event.target).closest('li').attr('alt')+'/',
 							data: {},
 							success: function(data){},
 							error: function(data){}
@@ -122,7 +122,7 @@ $(function(){
 				if ( validateDialog() ) {	
 					$.ajax({
 					type: "POST",
-						url: '/project/'+parentTaskId+'/new-task/',
+						url: '{% url "home" %}project/'+parentTaskId+'/new-task/',
 						data: {
 							'title':name.val(),
 							'description':description.val(),
@@ -139,7 +139,7 @@ $(function(){
 				if ( validateDialog() ) {	
 					$.ajax({
 					type: "POST",
-						url: '/project/'+pid+'/update-task/'+taskId+'/',
+						url: '{% url "home" %}project/'+pid+'/update-task/'+taskId+'/',
 						data: {
 							'title':name.val(),
 							'description':description.val(),
@@ -176,7 +176,7 @@ $(function(){
 			Confirm: function() {
 				$.ajax({
 					type: "POST",
-					url: '/project/'+pid+'/delete-task/'+ taskId +'/',
+					url: '{% url "home" %}project/'+pid+'/delete-task/'+ taskId +'/',
 					data: {},
 					success: function(data){alert("Task deleted from the system.");location.reload();},
 					error: function(data){alert("Failed to Retrieve the task");}
@@ -228,7 +228,7 @@ $(function(){
     	PrepareForView();
     	$.ajax({
 			type: "POST",
-				url: '/project/'+pid+'/view-task/'+ taskId +'/',
+				url: '{% url "home" %}project/'+pid+'/view-task/'+ taskId +'/',
 				data: {},
 				success: function(data){
 					name.val(data.title);
@@ -248,7 +248,7 @@ $(function(){
     	PrepareForEdit();
     	$.ajax({
 			type: "POST",
-				url: '/project/'+pid+'/view-task/'+ taskId +'/',
+				url: '{% url "home" %}project/'+pid+'/view-task/'+ taskId +'/',
 				data: {},
 				success: function(data){
 					name.val(data.title);
@@ -272,7 +272,7 @@ $(function(){
     	PrepareForEdit();
     	$.ajax({
 			type: "POST",
-				url: '/project/'+pid+'/view-task/'+ taskId +'/',
+				url: '{% url "home" %}project/'+pid+'/view-task/'+ taskId +'/',
 				data: {},
 				success: function(data){
 					$('#delete-item-name').html(data.title);
@@ -288,7 +288,7 @@ $(function(){
     	taskId = $(this).attr("alt");
     	$.ajax({
 			type: "POST",
-				url: '/project/'+pid+'/move-task/'+ taskId +'/down/',
+				url: '{% url "home" %}project/'+pid+'/move-task/'+ taskId +'/down/',
 				data: {},
 				success: function(data){
 					location.reload();
@@ -303,7 +303,7 @@ $(function(){
     	taskId = $(this).attr("alt");
     	$.ajax({
 			type: "POST",
-				url: '/project/'+pid+'/move-task/'+ taskId +'/up/',
+				url: '{% url "home" %}project/'+pid+'/move-task/'+ taskId +'/up/',
 				data: {},
 				success: function(data){
 					location.reload();
@@ -350,7 +350,7 @@ $(function(){
 	  if (e.which == 13) {
 		$.ajax({
 			type: "POST",
-				url: '/project/{{project.pk}}/add-admin/',
+				url: '{% url "home" %}project/{{project.pk}}/add-admin/',
 				data: {'new-admin':$('#new-admin').val()},
 				success: function(data){
 					location.reload();
@@ -367,7 +367,7 @@ $(function(){
     	adminId = $(this).attr("alt");
     	$.ajax({
 			type: "POST",
-				url: '/project/{{project.pk}}/remove-admin/',
+				url: '{% url "home" %}project/{{project.pk}}/remove-admin/',
 				data: {'remove-admin':adminId},
 				success: function(data){
 					location.reload();

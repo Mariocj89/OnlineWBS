@@ -53,7 +53,7 @@ $(function() {
 </table>
 
 <input type="submit" id="inputBut" value="Login" />
-<a href="/accounts/create/"><button type="button" id="registerBut">Register</button></a>
+<a href="{% url 'wbs/createUser' %}"><button type="button" id="registerBut">Register</button></a>
 <input type="hidden" name="next" value="{{ next }}" />
 </form>
 {% endblock %}

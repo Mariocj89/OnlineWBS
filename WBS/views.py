@@ -15,6 +15,7 @@ from django.core.mail import send_mail
 import re
 import string
 import random
+from django.core.urlresolvers import reverse
 
 def print_header(task):
     """
@@ -50,13 +51,13 @@ def print_task_hierarchy(task,preferences):
     #Cost
     ret += "<a class='task-cost' href='#' alt='"+str(task.pk)+"'>"
     if preferences.showInlineCost:
-        ret += "<span title='Cost' class='list-icon'>"+str(task.getCost())+" </span>"
-    ret += "<img title='Cost: "+str(task.getCost())+"' class='list-icon' src='/static/WBS/img/cost.png' /></a>"
+        ret += "<span title='Cost' class='list-icon'>"+task.getCostStr()+" </span>"
+    ret += "<img title='Cost: "+task.getCostStr()+"' class='list-icon' src='/static/WBS/img/cost.png' /></a>"
     
     #Completion
     ret += "<a class='task-completion' href='#' alt='"+str(task.pk)+"'>"
     if preferences.showInlineCompletion:
-        ret += "<span title='% Done so far' class='list-icon'>"+str(task.getCompletion())+" </span>"       
+        ret += "<span title='% Done so far' class='list-icon'>"+task.getCompletionStr()+" </span>"       
     ret += "<img title='Completion: "+("%.2f" % task.getCompletion())+"%' class='list-icon' src='/static/WBS/img/completion.png' /></a>"         
     
     if not task.isLast():
@@ -88,7 +89,7 @@ def print_task_to_hide(task,user):
         ret += print_task_to_hide(t,user)
     return ret
 
-@login_required(login_url='/accounts/login/')
+@login_required
 def home(request):
     """
         View for index.html
@@ -100,7 +101,7 @@ def home(request):
                                'finished':theFinishedSet,
                                'request':request})
     
-@login_required(login_url='/accounts/login/')
+@login_required
 def project_details(request,pid):
     """
         View for project details
@@ -122,7 +123,7 @@ def project_details(request,pid):
                                'request':request})    
 
 @csrf_exempt
-@login_required(login_url='/accounts/login/')
+@login_required
 def profile(request):
     """
         View for user details
@@ -142,12 +143,12 @@ def profile(request):
                 except UserPreferences.DoesNotExist, e:
                     print "[WARN] User preferences does not exist, One is being created"
                     aUserP = UserPreferences()
-                    aUserP.user = User.objects.get(id=usuario.id)
+                    UserPreferences.user = User.objects.get(pk=usuario.pk)
                     aUserP.save()
                 aUserP.showInlineCost = request.POST.get("showInlineCost") == 'on'
                 aUserP.showInlineCompletion = request.POST.get("showInlineCompletion") == 'on'
                 aUserP.save()
-                return HttpResponseRedirect('/accounts/profile/') # Redirect after POST
+                return HttpResponseRedirect(reverse('wbs/profile')) # Redirect after POST
         else:
             form = WBSUpdateUserForm() # An unbound form
     except IntegrityError, e:
@@ -161,7 +162,7 @@ def profile(request):
     
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def createProject(request):
     """
         WS to create a project
@@ -176,7 +177,7 @@ def createProject(request):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def viewTask(request,pid,tid):
     """
         WS to view a task
@@ -196,7 +197,7 @@ def viewTask(request,pid,tid):
     data = {
         "title": task.title,
         "description": task.description,
-        "cost": task.getCost(),
+        "cost": ("%.2f" % task.getCost()),
         "completion":("%.2f" % task.getCompletion()),
         "isLeaf":task.isLeaf()
     }
@@ -206,7 +207,7 @@ def viewTask(request,pid,tid):
 
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def createTask(request,pid):
     """
         WS to create a task
@@ -231,7 +232,7 @@ def createTask(request,pid):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def updateTask(request,pid,tid):
     """
         WS to edit a task
@@ -260,7 +261,7 @@ def updateTask(request,pid,tid):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def moveTaskDown(request,pid,tid):
     """
         WS to move a task down
@@ -283,7 +284,7 @@ def moveTaskDown(request,pid,tid):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def moveTaskUp(request,pid,tid):
     """
         WS to move a task up
@@ -307,7 +308,7 @@ def moveTaskUp(request,pid,tid):
 
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def deleteTask(request,pid,tid):
     """
         WS to remove a task
@@ -330,7 +331,7 @@ def deleteTask(request,pid,tid):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def toggleTask(request,pid,tid):
     """
         WS to hide/show a task
@@ -358,7 +359,7 @@ def toggleTask(request,pid,tid):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def addAdmin(request,pid):
     """
         WS to add an admin to a existing project
@@ -394,7 +395,7 @@ def addAdmin(request,pid):
     return HttpResponse({},status=201)
 
 @csrf_exempt    
-@login_required(login_url='/accounts/login/')
+@login_required
 def removeAdmin(request,pid):
     """
         WS to add an admin to a existing project
@@ -429,7 +430,7 @@ def createUser(request):
                 anEmail = request.POST["email"]
                 CreateUser(anEmail,aPassword,anUsername)
 
-                return HttpResponseRedirect('/') # Redirect after POST
+                return HttpResponseRedirect(reverse('home')) # Redirect after POST
         else:
             form = WBSUserForm() # An unbound form
     except IntegrityError, e:

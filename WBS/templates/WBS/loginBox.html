@@ -1,3 +1,4 @@
+{% load url from future %}
 <!-- Begin Login Box --> 
 <style>
 #login_bar{
@@ -24,9 +25,9 @@
 </style>
 
 	<div id="login_bar" style="text-align: right">
-		<a href="/accounts/profile/"><b>{{ request.user }}</b></a>                      
-	    <a href="/accounts/logout/"><img src="/static/WBS/img/logout.png" title="Logout"/></a>
-	    <a href="/"><img src="/static/WBS/img/home.png" title="Home"/></a>
+		<a href="{% url 'wbs/profile' %}"><b>{{ request.user }}</b></a>                      
+	    <a href="{% url 'wbs/logout' %}"><img src="/static/WBS/img/logout.png" title="Logout"/></a>
+	    <a href="{% url 'wbs/login' %}"><img src="/static/WBS/img/home.png" title="Home"/></a>
 	</div>
 	
 <!-- End Login Box -->	
