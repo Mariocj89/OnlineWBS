@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.forms.util import ErrorList
 from django.utils.safestring import mark_safe
+import json as simplejson
 from WBS.models import Task, Project,CreateUser, UserPreferences
-from django.utils import simplejson
 from django.core.mail import send_mail
 import re
 import string
@@ -41,38 +41,38 @@ def print_task_hierarchy(task,preferences):
     isFinishedCss = ""
     if task.isFinished():
         isFinishedCss += " completed-task"
-    ret += "<li class='ui-accordion-header ui-state-default ui-corner-all ui-accordion-icons "+isFinishedCss+"' alt='" + str(task.pk) + "'>" 
+    ret += "<li class='ui-accordion-header ui-state-default ui-corner-all ui-accordion-icons "+isFinishedCss+"' alt='" + str(task.pk) + "'>"
     ret += "<b><i>" + print_header(task) + "</i> - " +task.title +"</b>"
     ret += "<a class='new-task' href='#' alt='"+str(task.pk)+"'><img title='Add Task' class='list-icon' src='/static/WBS/img/add.png' /></a>"
     ret += "<a class='delete-task' href='#' alt='"+str(task.pk)+"'><img title='Delete Task' class='list-icon' src='/static/WBS/img/delete.png' /></a>"
     ret += "<a class='edit-task' href='#' alt='"+str(task.pk)+"'><img title='Edit Task' class='list-icon' src='/static/WBS/img/edit.png' /></a>"
-    ret += "<a class='view-task' href='#' alt='"+str(task.pk)+"'><img title='View Task' class='list-icon' src='/static/WBS/img/view.png' /></a>"       
-    
+    ret += "<a class='view-task' href='#' alt='"+str(task.pk)+"'><img title='View Task' class='list-icon' src='/static/WBS/img/view.png' /></a>"
+
     #Cost
     ret += "<a class='task-cost' href='#' alt='"+str(task.pk)+"'>"
     if preferences.showInlineCost:
         ret += "<span title='Cost' class='list-icon'>"+task.getCostStr()+" </span>"
     ret += "<img title='Cost: "+task.getCostStr()+"' class='list-icon' src='/static/WBS/img/cost.png' /></a>"
-    
+
     #Completion
     ret += "<a class='task-completion' href='#' alt='"+str(task.pk)+"'>"
     if preferences.showInlineCompletion:
-        ret += "<span title='% Done so far' class='list-icon'>"+task.getCompletionStr()+" </span>"       
-    ret += "<img title='Completion: "+("%.2f" % task.getCompletion())+"%' class='list-icon' src='/static/WBS/img/completion.png' /></a>"         
-    
+        ret += "<span title='% Done so far' class='list-icon'>"+task.getCompletionStr()+" </span>"
+    ret += "<img title='Completion: "+("%.2f" % task.getCompletion())+"%' class='list-icon' src='/static/WBS/img/completion.png' /></a>"
+
     if not task.isLast():
         ret += "<a class='move-task-down' href='#' alt='"+str(task.pk)+"'><img title='Move Down' class='list-icon' src='/static/WBS/img/down.png' /></a>"
     if not task.isFirst():
         ret += "<a class='move-task-up' href='#' alt='"+str(task.pk)+"'><img title='Move Up' class='list-icon' src='/static/WBS/img/up.png' /></a>"
-     
-    
+
+
     for t in task.children.order_by('orderIdx'):
         ret += print_task_hierarchy(t,preferences)
-        
-    
-    ret += "</li>" 
-    ret += "</ul>" 
-    
+
+
+    ret += "</li>"
+    ret += "</ul>"
+
     return ret
 
 def print_task_to_hide(task,user):
@@ -96,11 +96,11 @@ def home(request):
     """
     theOngoingSet = models.Project.objects.filter(administrators__username=request.user.username)
     theFinishedSet= {}#TODO
-    return render_to_response("WBS/index.html", 
+    return render_to_response("WBS/index.html",
                               {'ongoing':theOngoingSet,
                                'finished':theFinishedSet,
                                'request':request})
-    
+
 @login_required
 def project_details(request,pid):
     """
@@ -116,11 +116,11 @@ def project_details(request,pid):
         extraScript =    "$('"+aux[:-1]+"').click();"
     else:
         extraScript=""
-    return render_to_response("WBS/project_details.html", 
+    return render_to_response("WBS/project_details.html",
                               {'project':theProject,
                                'html_formatted_taks':mark_safe(formattedTaks),
                                'extra_script':mark_safe(extraScript),
-                               'request':request})    
+                               'request':request})
 
 @csrf_exempt
 @login_required
@@ -155,13 +155,13 @@ def profile(request):
         print e
         request.user = rollback_user
         form._errors["username"] = ErrorList([e.message.replace('column ', '')])
-    return render_to_response("WBS/account.html", 
+    return render_to_response("WBS/account.html",
                               {'request':request,
                                'form':form})
-    
-    
 
-@csrf_exempt    
+
+
+@csrf_exempt
 @login_required
 def createProject(request):
     """
@@ -176,16 +176,16 @@ def createProject(request):
     aProject.save()
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def viewTask(request,pid,tid):
     """
         WS to view a task
-    """    
+    """
     admin = User.objects.get(username= request.user.username)
     project = Project.objects.get(pk=pid)
     task = Task.objects.get(pk=tid)
-    
+
     if task.root().pk != project.pk or not project.administrators.filter(pk=admin.pk):
         if task.root().pk != project.pk:
             aux = "Task and project does not match"
@@ -193,7 +193,7 @@ def viewTask(request,pid,tid):
             aux = "User does not admin the project"
         print "Security issue: ",aux
         return HttpResponse('Unauthorized', status=401)
-    
+
     data = {
         "title": task.title,
         "description": task.description,
@@ -206,12 +206,12 @@ def viewTask(request,pid,tid):
     return HttpResponse(data, mimetype="application/json")
 
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def createTask(request,pid):
     """
         WS to create a task
-    """      
+    """
     aTask = models.Task()
     aTask.title = request.POST['title']
     aTask.description = request.POST['description'] if request.POST['description'] else 0
@@ -226,28 +226,28 @@ def createTask(request,pid):
         lastIdx= tasks.order_by('-orderIdx')[0].orderIdx
 
     aTask.orderIdx = lastIdx + 1
-    
+
     print "Saving Task: ",aTask, " Parent: ",aTask.parent, " idx: ",aTask.orderIdx
     aTask.save()
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def updateTask(request,pid,tid):
     """
         WS to edit a task
-    """      
+    """
     admin = User.objects.get(username= request.user.username)
     project = Project.objects.get(pk=pid)
-    task = Task.objects.get(pk=tid)    
-    
+    task = Task.objects.get(pk=tid)
+
     if task.root().pk != project.pk or not project.administrators.filter(pk=admin.pk):
         if task.root().pk != project.pk:
             aux = "Task and project does not match"
         elif not project.administrators.filter(pk=admin.pk):
             aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     task.title = request.POST['title']
     task.description = request.POST['description']
@@ -257,108 +257,108 @@ def updateTask(request,pid,tid):
     assert(task.completion >= 0)
     #aTask.orderIdx = request.POST['description']
     print "Saving Task: ",task, ", Parent: ",task.parent, ", idx: ",task.orderIdx, ", cost",task.cost, ", Calculated: ",task.getCost(),", completion",task.completion, ", Completion: ",task.getCompletion()
-    task.save()    
+    task.save()
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def moveTaskDown(request,pid,tid):
     """
         WS to move a task down
-    """      
+    """
     admin = User.objects.get(username= request.user.username)
     project = Project.objects.get(pk=pid)
     task = Task.objects.get(pk=tid)
-    
+
     if task.root().pk != project.pk or not project.administrators.filter(pk=admin.pk):
         if task.root().pk != project.pk:
             aux = "Task and project does not match"
         elif not project.administrators.filter(pk=admin.pk):
             aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     print "Moving Down Task: ",task, " Parent: ",task.parent, " idx: ",task.orderIdx
-    task.move_down() 
+    task.move_down()
 
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def moveTaskUp(request,pid,tid):
     """
         WS to move a task up
-    """      
+    """
     admin = User.objects.get(username= request.user.username)
     project = Project.objects.get(pk=pid)
     task = Task.objects.get(pk=tid)
-    
+
     if task.root().pk != project.pk or not project.administrators.filter(pk=admin.pk):
         if task.root().pk != project.pk:
             aux = "Task and project does not match"
         elif not project.administrators.filter(pk=admin.pk):
             aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     print "Moving Down Up: ",task, " Parent: ",task.parent, " idx: ",task.orderIdx
-    task.move_up() 
+    task.move_up()
 
     return HttpResponse({},status=201)
 
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def deleteTask(request,pid,tid):
     """
         WS to remove a task
-    """      
+    """
     admin = User.objects.get(username= request.user.username)
     project = Project.objects.get(pk=pid)
-    task = Task.objects.get(pk=tid)    
-    
+    task = Task.objects.get(pk=tid)
+
     if task.root().pk != project.pk or not project.administrators.filter(pk=admin.pk):
         if task.root().pk != project.pk:
             aux = "Task and project does not match"
         elif not project.administrators.filter(pk=admin.pk):
             aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     #aTask.orderIdx = request.POST['description']
     print "Deleting Task: ",task, " Parent: ",task.parent, " idx: ",task.orderIdx
-    task.delete()    
+    task.delete()
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def toggleTask(request,pid,tid):
     """
         WS to hide/show a task
-    """  
+    """
     admin = User.objects.get(username= request.user.username)
     project = Project.objects.get(pk=pid)
-    task = Task.objects.get(pk=tid)    
-    
+    task = Task.objects.get(pk=tid)
+
     if task.root().pk != project.pk or not project.administrators.filter(pk=admin.pk):
         if task.root().pk != project.pk:
             aux = "Task and project does not match"
         elif not project.administrators.filter(pk=admin.pk):
             aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     #aTask.orderIdx = request.POST['description']
     print "Toggling Task: ",task
-    
-    if User.objects.filter(username = admin.username,collapsedTasks=task): 
+
+    if User.objects.filter(username = admin.username,collapsedTasks=task):
         User.objects.get(username = admin.username).collapsedTasks.remove(task)
     else:
         User.objects.get(username = admin.username).collapsedTasks.add(task).save()
 
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def addAdmin(request,pid):
     """
@@ -380,21 +380,21 @@ def addAdmin(request,pid):
                 adminToAdd =CreateUser(usernameToAdd,randomPwd)
                 send_mail('OnlineWBS Registration', 'You have been invited to user Online WBS by ' + request.user.email + '.Your username is: '+adminToAdd.username + ' and your password: '+randomPwd, 'admin@OnlineWBS.com',
                             [usernameToAdd], fail_silently=False)
-                
-                
+
+
     project = Project.objects.get(pk=pid)
-    
+
     if not project.administrators.filter(pk=admin.pk):
         aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     #aTask.orderIdx = request.POST['description']
     print "Adding admin("+str(adminToAdd)+") to project: ",str(project)
     project.administrators.add(adminToAdd)
     return HttpResponse({},status=201)
 
-@csrf_exempt    
+@csrf_exempt
 @login_required
 def removeAdmin(request,pid):
     """
@@ -403,11 +403,11 @@ def removeAdmin(request,pid):
     admin = User.objects.get(username= request.user.username)
     adminToRemove = User.objects.get(pk= request.POST['remove-admin'])
     project = Project.objects.get(pk=pid)
-    
+
     if not project.administrators.filter(pk=admin.pk):
         aux = "User does not admin the project"
         print "Security issue: ",aux
-        return HttpResponse('Unauthorized', status=401)    
+        return HttpResponse('Unauthorized', status=401)
 
     #aTask.orderIdx = request.POST['description']
     print "Remove admin("+str(adminToRemove)+") to project: ",str(project)
@@ -437,7 +437,7 @@ def createUser(request):
         print e
         request.user = rollback_user
         form._errors["username"] = ErrorList([e.message.replace('column ', '')])
-    return render_to_response("WBS/createAccount.html", 
+    return render_to_response("WBS/createAccount.html",
                               {'request':request,
                                'form':form})
 
