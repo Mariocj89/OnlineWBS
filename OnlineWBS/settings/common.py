@@ -109,7 +109,7 @@ MEDIA_URL = '/media/'
 # Absolute path to the directory static files should be collected to. Don't put
 # anything in this directory yourself; store your static files in apps' static/
 # subdirectories and in STATICFILES_DIRS.
-STATIC_ROOT = normpath(join(SITE_ROOT, 'static'))
+STATIC_ROOT = 'staticfiles'
 
 # URL prefix for static files.
 STATIC_URL = '/static/'
@@ -188,8 +188,5 @@ ROOT_URLCONF = '%s.urls' % SITE_NAME
 # Fixing 1_6.W001
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-# Allowed host to be used
-ALLOWED_HOSTS = [
-    'onlinewbs.com',
-    'localhost',
-]
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
