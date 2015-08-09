@@ -203,7 +203,7 @@ def viewTask(request,pid,tid):
     }
     data = simplejson.dumps(data)
     print "Viewing Task: ",task, "  -> ",data
-    return HttpResponse(data, mimetype="application/json")
+    return HttpResponse(data, content_type="application/json")
 
 
 @csrf_exempt
