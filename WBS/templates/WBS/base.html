@@ -13,15 +13,15 @@
       p, table, hr, .box { margin-bottom:25px; }
       .box p { margin-bottom:10px; }
     </style>
-    
+
 	<!-- Jquery -->
 	<script type="text/javascript" src="/static/WBS/js/jquery-ui-1.10.3/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="/static/WBS/js/jquery-ui-1.10.3/ui/jquery-ui.js"></script>
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
-	
-	    
+	<link rel="stylesheet" href="/code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+
+
     <link rel="stylesheet" href="/static/WBS/css/style.css" type="text/css" media="screen, projection">
- 	<link href='http://fonts.googleapis.com/css?family=Cinzel' rel='stylesheet' type='text/css'>    
+ 	<link href='/fonts.googleapis.com/css?family=Cinzel' rel='stylesheet' type='text/css'>
     <!-- Begin head -->
 {% block extraJS %}{% endblock %}
 </head>
@@ -32,7 +32,7 @@
     <div class="container">
 		<br />
 		<h1>{% block bodyTitle %}{% endblock %}</h1>
-		<br />    	
+		<br />
     	{% block content %}{% endblock %}
     </div>
     <!-- End content -->
